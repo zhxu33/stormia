@@ -5,7 +5,7 @@ import time
 db = mysql.connector.connect(
     host = "localhost",
     user = "root",
-    passwd="123Rockey30$",
+    passwd="",
     database = "Stormia"
     )
 
