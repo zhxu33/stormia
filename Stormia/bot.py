@@ -1,5 +1,5 @@
 import discord
-from sql import *
+from Stormia.sql import *
 token = "MTA0MjI1NTgxNzY4NjEzNDgzNQ.GRWQ-6.UWn2gc2pfl3mSG6UO-nRKOnOYs-WAySvQvqKzk"
 import random
 
