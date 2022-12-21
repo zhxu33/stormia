@@ -1,6 +1,6 @@
 import discord
 from sql import *
-token = "MTA0MjI1NTgxNzY4NjEzNDgzNQ.G29qZ4.BkE114ZKnZ4qgxzZbodpkY_JSCsAgFp13_e0sY"
+token = "PLACEHOLDER"
 import random
 
 intents = discord.Intents.default()
