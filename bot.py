@@ -1,6 +1,6 @@
 import discord
-from Stormia.sql import *
-token = "MTA0MjI1NTgxNzY4NjEzNDgzNQ.GRWQ-6.UWn2gc2pfl3mSG6UO-nRKOnOYs-WAySvQvqKzk"
+from sql import *
+token = "MTA0MjI1NTgxNzY4NjEzNDgzNQ.G29qZ4.BkE114ZKnZ4qgxzZbodpkY_JSCsAgFp13_e0sY"
 import random
 
 intents = discord.Intents.default()
@@ -35,7 +35,7 @@ async def on_message(message):
                 memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
                 if (messageList[2] == memberId and len(messageList) == 3):
                     if (insert(memberId) == True):
-                        await message.channel.send(f"Successfully inserted {memberId} to the list!")
+                        await message.channel.send(f"Successfully added {memberId} to the list!")
                         return
                     else:  
                         await message.channel.send(f"{memberId} is already on the list!")  
@@ -51,17 +51,56 @@ async def on_message(message):
                 memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
                 if (messageList[2] == memberId and len(messageList) == 3):
                     if (drop(memberId) == True):
-                        await message.channel.send(f"Successfully dropped {memberId} from the list!")
+                        await message.channel.send(f"Successfully removed {memberId} from the list!")
                         return
                     else:  
                         await message.channel.send(f"{memberId} is not on the list!")
+        elif (messageList[1] == "status" and len(messageList) == 3):
+            if (message.mentions):
+                s = str(message.mentions)
+                i = s.index("name='")
+                name = s[i+6:s.index("'", i+6)]
+                i = s.index("discriminator='")
+                discriminator = s[i+15:s.index("'", i+15)]
+                userTag = name+'#'+discriminator
+                i = s.index("id=")
+                memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
+                s = status(memberId)
+                await message.channel.send(s)
+        elif (messageList[1] == "status" and len(messageList) == 2):
+            memberId = "<@"+str(message.author.id)+">"
+            s = status(memberId)
+            await message.channel.send(s)
+        elif (messageList[1] == "add" and len(messageList) == 4):
+            if (message.mentions):
+                s = str(message.mentions)
+                i = s.index("name='")
+                name = s[i+6:s.index("'", i+6)]
+                i = s.index("discriminator='")
+                discriminator = s[i+15:s.index("'", i+15)]
+                userTag = name+'#'+discriminator
+                i = s.index("id=")
+                memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
+                s = add(memberId, int(messageList[3]))
+                await message.channel.send(s)
+        elif (messageList[1] == "add" and len(messageList) == 3):
+            memberId = "<@"+str(message.author.id)+">"
+            s = add(memberId, int(messageList[2]))
+            await message.channel.send(s)
         elif (messageList[1] == "list" and len(messageList) == 2):
-            result = list()
-            s = ""
-            for x in result:
-                x = x[0:2]
-                s = s+f"User: <@{x[0]}> Total Time: {x[1]} seconds\n"
-            await message.channel.send(s)            
+            s = list()
+            await message.channel.send(s) 
+        elif (messageList[1] == "resume" and len(messageList) == 2):
+            memberId = "<@"+str(message.author.id)+">"
+            s = resume(memberId)
+            await message.channel.send(s)
+        elif (messageList[1] == "pause" and len(messageList) == 2):
+            memberId = "<@"+str(message.author.id)+">"
+            s = pause(memberId)
+            await message.channel.send(s)
+        elif (messageList[1] == "reset" and len(messageList) == 2):
+            s = reset()
+            await message.channel.send(s)
 
 client.run(token)
 
