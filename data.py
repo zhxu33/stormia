@@ -1,12 +1,13 @@
 import mysql.connector
 from datetime import datetime
+from info import *
 import time
 
 db = mysql.connector.connect(
     host = "localhost",
     user = "root",
-    passwd="PLACEHOLDER$",
-    database = "PLACEHOLDER"
+    passwd = passwd,
+    database = database
     )
 
 mycursor = db.cursor()
