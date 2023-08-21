@@ -1,18 +1,24 @@
 import mysql.connector
 from datetime import datetime
 from info import *
+from setup import build, drop
 import time
+
+build()
 
 db = mysql.connector.connect(
     host = "localhost",
     user = "root",
     passwd = passwd,
     database = database
-    )
+)
 
 mycursor = db.cursor()
-#mycursor.execute("CREATE TABLE User (tag VARCHAR(50) PRIMARY KEY, total int, start datetime, clocking bool)")
-# mycursor.execute("DROP TABLE User")
+
+try:
+    mycursor.execute("CREATE TABLE User (tag VARCHAR(50) PRIMARY KEY, total int, start datetime, clocking bool)")
+except:
+    print("Set up complete")
 
 def convert_time(current_dateTime):
     return "`"+str(current_dateTime.month)+"/"+str(current_dateTime.day)+"/"+str(current_dateTime.year)+" | "+str(current_dateTime.hour)+":"+str(current_dateTime.minute)+":"+str(current_dateTime.second) + " PST`."
@@ -104,3 +110,7 @@ def list():
         return s
     else:
         return "Data not found."
+    
+def commandList():
+    commands = ["!dl commands", "!dl insert @user", "!dl drop @user", "!dl status @user", "!dl status", "!dl add @user time", "!dl add time", "!dl list", "!dl resume", "!dl pause", "!dl reset"]
+    return '`' + '\n'.join(commands) + '`'

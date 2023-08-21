@@ -30,13 +30,10 @@ async def on_message(message):
                 s = str(message.mentions)
                 i = s.index("name='")
                 name = s[i+6:s.index("'", i+6)]
-                i = s.index("discriminator='")
-                discriminator = s[i+15:s.index("'", i+15)]
-                userTag = name+'#'+discriminator
                 i = s.index("id=")
                 memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
                 if (messageList[2] == memberId and len(messageList) == 3):
-                    if (insert(memberId) == True):
+                    if (insert(memberId)):
                         s=discord.Embed(title="Insert", description=f"Successfully added {memberId} to the list!", color = 0x2ecc71)
                         s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
                         await message.channel.send(embed=s)
@@ -49,11 +46,6 @@ async def on_message(message):
         elif (messageList[1] == "drop" and len(messageList) == 3):
             if (message.mentions):
                 s = str(message.mentions)
-                i = s.index("name='")
-                name = s[i+6:s.index("'", i+6)]
-                i = s.index("discriminator='")
-                discriminator = s[i+15:s.index("'", i+15)]
-                userTag = name+'#'+discriminator
                 i = s.index("id=")
                 memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
                 if (messageList[2] == memberId and len(messageList) == 3):
@@ -70,11 +62,6 @@ async def on_message(message):
         elif (messageList[1] == "status" and len(messageList) == 3):
             if (message.mentions):
                 s = str(message.mentions)
-                i = s.index("name='")
-                name = s[i+6:s.index("'", i+6)]
-                i = s.index("discriminator='")
-                discriminator = s[i+15:s.index("'", i+15)]
-                userTag = name+'#'+discriminator
                 i = s.index("id=")
                 memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
                 s=discord.Embed(title="Status", description=status(memberId), color = 0x3498db)
@@ -90,11 +77,6 @@ async def on_message(message):
         elif (messageList[1] == "add" and len(messageList) == 4):
             if (message.mentions):
                 s = str(message.mentions)
-                i = s.index("name='")
-                name = s[i+6:s.index("'", i+6)]
-                i = s.index("discriminator='")
-                discriminator = s[i+15:s.index("'", i+15)]
-                userTag = name+'#'+discriminator
                 i = s.index("id=")
                 memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
                 s=discord.Embed(title="Add", description=add(memberId, int(messageList[3])), color = 0x2ecc71)
@@ -126,6 +108,16 @@ async def on_message(message):
 
         elif (messageList[1] == "reset" and len(messageList) == 2):
             s=discord.Embed(title="Reset", description=reset(), color = 0x3498db)
+            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
+            await message.channel.send(embed = s)
+        
+        elif (messageList[1] == "commands" and len(messageList) == 2):
+            s=discord.Embed(title="Command List", description=commandList(), color = 0xffffff)
+            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
+            await message.channel.send(embed = s)
+
+        else:
+            s=discord.Embed(title="Invalid Command", description=commandList(), color = 0xffffff)
             s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
             await message.channel.send(embed = s)
 
