@@ -7,8 +7,8 @@ import time
 build()
 
 db = mysql.connector.connect(
-    host = "localhost",
-    user = "root",
+    host = host,
+    user = user,
     passwd = passwd,
     database = database
 )
