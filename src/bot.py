@@ -23,9 +23,14 @@ async def send_message(ctx, title, description, color):
 
 colors = {"list": 0x3498db, "commands": 0xffffff, "reset": 0x3498db, "insert": 0x2ecc71, "pause": 0xf1c40f, "resume": 0x2ecc71, "add": 0x2ecc71, "drop": 0xe74c3c, "status": 0x3498db}
 
-host = os.getenv('apihost')
+host = "stormia-api"
 port = os.getenv('port')
 API_URL = f"http://{host}:{port}"
+
+try:
+    requests.get(f"{API_URL}")
+except:
+    print("Failed to connnect to database")
 
 @bot.event
 async def on_command_error(ctx, error):

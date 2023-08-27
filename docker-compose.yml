@@ -1,5 +1,24 @@
 version: "3"
 
 services:
-  stormia:
+  client:
     build: ./src
+    container_name: stormia-bot
+    env_file: ./src/.env
+    depends_on:
+      - server
+    networks:
+      - stormia
+
+  server:
+    build: ./src/api
+    container_name: stormia-api
+    env_file: ./src/.env
+    ports:
+      - "8000:8000"
+    networks:
+      - stormia
+
+networks:
+  stormia:
+    driver: bridge

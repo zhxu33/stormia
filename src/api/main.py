@@ -132,11 +132,11 @@ async def list():
         return {"message": "Data not found."}
 
 import os
+import uvicorn
 from dotenv import load_dotenv
 load_dotenv()
 host = os.getenv('apihost')
 port = os.getenv('port')
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host=host, port=int(port)) # 233050942742855680
