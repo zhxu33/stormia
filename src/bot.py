@@ -1,125 +1,105 @@
+import os
 import discord
-from data import *
-from info import *
-import random
+import requests
+from discord.ext import commands
+from dotenv import load_dotenv
+
+load_dotenv()
+token = os.getenv('token')
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents)
 
-@client.event
+bot = commands.Bot(command_prefix='!dl ', intents=intents)
+
+@bot.event
 async def on_ready():
-    print("We have logged in as {0.user}".format(client))
+    print("Stormia is ready!")
 
-@client.event 
-async def on_message(message):
-    username = str(message.author).split('#')[0]
-    user_message = str(message.content)
-    channel = str(message.channel.name)
+async def send_message(ctx, title, description, color):
+    s = discord.Embed(title=title, description=description, color=color)
+    s.set_footer(text=str(ctx.author)+" | "+str(ctx.author.id), icon_url=ctx.author.avatar.url)
+    await ctx.send(embed=s)
 
-    if message.author == client.user:
-        return
+colors = {"list": 0x3498db, "commands": 0xffffff, "reset": 0x3498db, "insert": 0x2ecc71, "pause": 0xf1c40f, "resume": 0x2ecc71, "add": 0x2ecc71, "drop": 0xe74c3c, "status": 0x3498db}
 
-    messageList = user_message.split()
+host = os.getenv('apihost')
+port = os.getenv('port')
+API_URL = f"http://{host}:{port}"
 
-    if (messageList[0] == "!dl" and len(messageList) > 1):
+@bot.event
+async def on_command_error(ctx, error):
+    response = requests.get(f"{API_URL}")
+    data = response.json()
+    await send_message(ctx, "Invalid Command", data["message"], colors["commands"])
+    
+@bot.command('commands')
+async def handle_commands(ctx):
+    response = requests.get(f"{API_URL}")
+    data = response.json()
+    await send_message(ctx, "Commands", data["message"], colors["commands"])
 
-        if (messageList[1] == "insert" and len(messageList) == 3):
+@bot.command('list')
+async def handle_list(ctx):
+    response = requests.get(f"{API_URL}/list")
+    data = response.json()
+    await send_message(ctx, "Report", data["message"], colors['list'])
 
-            if (message.mentions):
-                s = str(message.mentions)
-                i = s.index("name='")
-                name = s[i+6:s.index("'", i+6)]
-                i = s.index("id=")
-                memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
-                if (messageList[2] == memberId and len(messageList) == 3):
-                    if (insert(memberId)):
-                        s=discord.Embed(title="Insert", description=f"Successfully added {memberId} to the list!", color = 0x2ecc71)
-                        s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-                        await message.channel.send(embed=s)
-                        return
-                    else: 
-                        s=discord.Embed(title="Insert", description=f"{memberId} is already on the list!", color = 0x2ecc71)
-                        s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-                        await message.channel.send(embed=s) 
+@bot.command('clockin')
+async def handle_resume(ctx):
+    response = requests.put(f"{API_URL}/resume/{ctx.author.id}")
+    data = response.json()
+    await send_message(ctx, "Clock In", data["message"], colors['resume'])
 
-        elif (messageList[1] == "drop" and len(messageList) == 3):
-            if (message.mentions):
-                s = str(message.mentions)
-                i = s.index("id=")
-                memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
-                if (messageList[2] == memberId and len(messageList) == 3):
-                    if (drop(memberId) == True):
-                        s=discord.Embed(title="Drop", description=f"Successfully removed {memberId} from the list!", color = 0xe74c3c)
-                        s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-                        await message.channel.send(embed=s)
-                        return
-                    else:  
-                        s=discord.Embed(title="Drop", description=f"{memberId} is not on the list!", color = 0xe74c3c)
-                        s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-                        await message.channel.send(embed=s)
+@bot.command('clockout')
+async def handle_pause(ctx):
+    response = requests.put(f"{API_URL}/pause/{ctx.author.id}")
+    data = response.json()
+    await send_message(ctx, "Clock Out", data["message"], colors['pause'])
 
-        elif (messageList[1] == "status" and len(messageList) == 3):
-            if (message.mentions):
-                s = str(message.mentions)
-                i = s.index("id=")
-                memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
-                s=discord.Embed(title="Status", description=status(memberId), color = 0x3498db)
-                s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-                await message.channel.send(embed = s)
+@bot.command('insert')
+async def handle_insert(ctx, user : discord.Member):
+    response = requests.post(f"{API_URL}/insert/{user.id}")
+    data = response.json()
+    await send_message(ctx, "Insert", data["message"], colors['insert'])
 
-        elif (messageList[1] == "status" and len(messageList) == 2):
-            memberId = "<@"+str(message.author.id)+">"
-            s=discord.Embed(title="Status", description=status(memberId), color = 0x3498db)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed = s)
+@bot.command('drop')
+async def handle_drop(ctx, user : discord.Member):
+    response = requests.delete(f"{API_URL}/drop/{user.id}")
+    data = response.json()
+    await send_message(ctx, "Drop", data["message"], colors['drop'])
 
-        elif (messageList[1] == "add" and len(messageList) == 4):
-            if (message.mentions):
-                s = str(message.mentions)
-                i = s.index("id=")
-                memberId = "<@"+s[i+3:s.index(" ", i+3)]+">"
-                s=discord.Embed(title="Add", description=add(memberId, int(messageList[3])), color = 0x2ecc71)
-                s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-                await message.channel.send(embed = s)
+@bot.command('reset')
+async def handle_reset(ctx, user = None):
+    if user:
+        response = requests.put(f"{API_URL}/reset/{str(user)[2:len(user)-1]}")
+        data = response.json()
+        await send_message(ctx, "Reset", data["message"], colors['reset'])
+    else:
+        response = requests.put(f"{API_URL}/reset")
+        data = response.json()
+        await send_message(ctx, "Reset", data["message"], colors['reset'])
 
-        elif (messageList[1] == "add" and len(messageList) == 3):
-            memberId = "<@"+str(message.author.id)+">"
-            s=discord.Embed(title="Add", description=add(memberId, int(messageList[2])), color = 0x2ecc71)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed = s)
+@bot.command('status')
+async def handle_status(ctx, user = None):
+    if user:
+        response = requests.get(f"{API_URL}/status/{str(user)[2:len(user)-1]}")
+        data = response.json()
+        await send_message(ctx, "Status", data["message"], colors['status'])
+    else:
+        response = requests.get(f"{API_URL}/status/{ctx.author.id}")
+        data = response.json()
+        await send_message(ctx, "Status", data["message"], colors['status'])
 
-        elif (messageList[1] == "list" and len(messageList) == 2):
-            s=discord.Embed(title="Report", description=list(), color = 0x3498db)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed=s) 
+@bot.command('add')
+async def handle_add(ctx, time, user = None):
+    if user:
+        response = requests.put(f"{API_URL}/add/{int(time)}/{str(user)[2:len(user)-1]}")
+        data = response.json()
+        await send_message(ctx, "Add", data["message"], colors['add'])
+    else:
+        response = requests.put(f"{API_URL}/add/{int(time)}/{ctx.author.id}")
+        data = response.json()
+        await send_message(ctx, "Add", data["message"], colors['add'])
 
-        elif (messageList[1] == "resume" and len(messageList) == 2):
-            memberId = "<@"+str(message.author.id)+">"
-            s=discord.Embed(title="Resume", description=resume(memberId), color = 0x2ecc71)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed = s)
-
-        elif (messageList[1] == "pause" and len(messageList) == 2):
-            memberId = "<@"+str(message.author.id)+">"
-            s=discord.Embed(title="Pause", description=pause(memberId), color = 0xf1c40f)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed = s)
-
-        elif (messageList[1] == "reset" and len(messageList) == 2):
-            s=discord.Embed(title="Reset", description=reset(), color = 0x3498db)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed = s)
-        
-        elif (messageList[1] == "commands" and len(messageList) == 2):
-            s=discord.Embed(title="Command List", description=commandList(), color = 0xffffff)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed = s)
-
-        else:
-            s=discord.Embed(title="Invalid Command", description=commandList(), color = 0xffffff)
-            s.set_footer(text=str(message.author)+" | "+str(message.author.id), icon_url=message.author.avatar.url)
-            await message.channel.send(embed = s)
-
-client.run(token)
-
+bot.run(token)

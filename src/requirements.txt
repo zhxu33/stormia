@@ -1,0 +1,6 @@
+mysql-connector
+discord.py
+python-dotenv
+fastapi
+uvicorn[standard]
+requests

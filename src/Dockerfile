@@ -4,8 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install mysql-connector
-
-RUN pip install discord.py
+RUN pip install -r requirements.txt
 
 CMD ["python", "bot.py"]
