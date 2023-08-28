@@ -4,16 +4,16 @@ services:
   client:
     build: ./src
     container_name: stormia-bot
-    env_file: ./src/.env
+    env_file: docker.env
     depends_on:
       - server
     networks:
       - stormia
 
   server:
-    build: ./src/api
+    build: ./api
     container_name: stormia-api
-    env_file: ./src/.env
+    env_file: docker.env
     ports:
       - "8000:8000"
     networks:
