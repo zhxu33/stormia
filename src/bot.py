@@ -23,9 +23,7 @@ async def send_message(ctx, title, description, color):
 
 colors = {"list": 0x3498db, "commands": 0xffffff, "reset": 0x3498db, "insert": 0x2ecc71, "pause": 0xf1c40f, "resume": 0x2ecc71, "add": 0x2ecc71, "drop": 0xe74c3c, "status": 0x3498db}
 
-proxy = os.getenv('proxy')
-port = os.getenv('port')
-API_URL = f"http://{proxy}:{port}"
+API_URL = os.getenv('proxy')
 
 try:
     requests.get(f"{API_URL}")
