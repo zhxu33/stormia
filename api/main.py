@@ -139,4 +139,4 @@ host = os.getenv('apihost')
 port = os.getenv('port')
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=host, port=int(port)) # 233050942742855680
+    uvicorn.run(app, host=host, port=int(port))
